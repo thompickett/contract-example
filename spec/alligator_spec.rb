@@ -4,7 +4,13 @@ require_relative '../contracts/alligator'
 describe "AlligatorContractSpec" do
 
   before do
-    @incoming = [
+    params = {
+      param1: "Tree"
+    }
+    service = Service.new(:edualize)
+    totals = service.get_request('/api/v1//median_expenditures/totals')
+    @body = totals[:body]
+    @body = [
       {
         name: "foo",
         age: "value",
@@ -22,7 +28,7 @@ describe "AlligatorContractSpec" do
 
   it "Should pass" do
     alligator = Alligator.new.body.pattern
-    expect_body_matches(alligator, @incoming)
+    expect_body_matches(alligator, @body)
   end
 
 end

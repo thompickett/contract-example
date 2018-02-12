@@ -6,7 +6,7 @@ if Gem::Version.new(Bundler::VERSION) < Gem::Version.new('1.16.1')
 end
 
 # httparty used for making requests in service clients
-gem 'httparty'
+gem 'faraday'
 
 # Use binding.pry for debugging
 gem 'pry'

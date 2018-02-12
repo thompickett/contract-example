@@ -1,43 +1,73 @@
 require 'pry'
 require 'rspec'
+require 'faraday'
+require 'json'
 
-def base_urls
-  {
-    localhost: "https://localhost:3000",
-    ong: "https://ais.qa.blah.blah"
-  }
-end
+class Service
 
-def expect_body_matches(contract_object, actual_object)
-  expect(contract_object.class).to eq(actual_object.class)
-  if contract_object.class == Array
-    if_array(contract_object, actual_object)
-  elsif contract_object.class == Hash
-    if_hash(contract_object)
+  def initialize(url_key)
+    @conn = Faraday.new(base_urls[url_key])
   end
-end
 
-def if_array(contract_object, actual_object)
-  expected_length = contract_object.length + 1
-  expected_length.times do |i|
-    expect(contract_object[i].class).to eq(actual_object[i].class)
+  def get_request(uri)
+    response = @conn.get(uri)
+    {
+      status: response.status
+      headers: response.headers
+      body: parse_body(response),
+    }
+  end
 
-    if contract_object[i].class == Array
-      if_array(contract_object[i], actual_object[i])
-    elsif contract_object[i].class == Hash
-      if_hash(contract_object[i], actual_object[i])
+  def parse_body(response)
+    JSON.parse(response.body)
+  end
+
+  private
+
+    def base_urls
+      {
+        localhost: "https://localhost:3000",
+        ong: "https://ais.qa.blah.blah",
+        edualize: "https://edualize.herokuapp.com/"
+      }
     end
 
-  end
 end
 
-def if_hash(contract_object, actual_object)
-  contract_keys = contract_object.keys
-  actual_keys = actual_object.keys
+module Expect
 
-  contract_values = contract_object.values
-  actual_values = actual_object.values
+  def assert_format_equal(contract_object, actual_object)
+    expect(contract_object.class).to eq(actual_object.class)
+    if contract_object.class == Array
+      if_array(contract_object, actual_object)
+    elsif contract_object.class == Hash
+      if_hash(contract_object)
+    end
+  end
 
-  expect(contract_keys).to eq(actual_keys)
-  if_array(contract_values, actual_values)
+  def if_array(contract_object, actual_object)
+    expected_length = contract_object.length + 1
+    expected_length.times do |i|
+      expect(contract_object[i].class).to eq(actual_object[i].class)
+
+      if contract_object[i].class == Array
+        if_array(contract_object[i], actual_object[i])
+      elsif contract_object[i].class == Hash
+        if_hash(contract_object[i], actual_object[i])
+      end
+
+    end
+  end
+
+  def if_hash(contract_object, actual_object)
+    contract_keys = contract_object.keys
+    actual_keys = actual_object.keys
+
+    contract_values = contract_object.values
+    actual_values = actual_object.values
+
+    expect(contract_keys).to eq(actual_keys)
+    if_array(contract_values, actual_values)
+  end
+
 end
