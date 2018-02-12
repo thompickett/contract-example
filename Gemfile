@@ -10,3 +10,6 @@ gem 'httparty'
 
 # Use binding.pry for debugging
 gem 'pry'
+
+# Used for test setup and assertions
+gem 'rspec'
