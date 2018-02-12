@@ -1,14 +1,16 @@
-require_relative "../models/base"
+require_relative "./base_contract"
 
-class Alligator < Base
+class AlligatorContract < BaseContract
 
-  private
+    def status
+      200
+    end
 
-    def contract_headers
+    def headers
       { application_type: "json" }
     end
 
-    def body_pattern
+    def body
       [
         {
           name: "",
